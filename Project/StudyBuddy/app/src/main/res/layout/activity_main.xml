@@ -58,4 +58,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.781" />
 
+    <TextView
+        android:id="@+id/group_name"
+        android:layout_width="135dp"
+        android:layout_height="29dp"
+        android:scaleX="0.4"
+        android:scaleY="0.5"
+        android:text="@string/group_name"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/book"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.637"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/book"
+        app:layout_constraintVertical_bias="0.218" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
