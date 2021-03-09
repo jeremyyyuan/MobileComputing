@@ -6,6 +6,7 @@
     <string name="end_study">End Study Session</string>
     <string name="book">Book</string>
     <string name="home">Home</string>
+    <string name="group_name">BlueJAY Computing</string>
     <string name="study_session">Study Session</string>
     <string name="duration">Duration:</string>
     <string name="pickups"># of Pickups:</string>
