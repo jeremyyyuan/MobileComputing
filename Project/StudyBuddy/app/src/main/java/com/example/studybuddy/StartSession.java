@@ -1,8 +1,5 @@
 package com.example.studybuddy;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +14,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+// import com.opencsv.AbstractCSVWriter;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,9 +96,19 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         /* Begin monitoring phone distractions */
         monitorAppDistractions();
     }
+    private void outputData() {
+        String dir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String filename = "AccelerometerData.csv";
+        String filePath = dir + File.separator + filename;
 
+        File f = new File(filePath);
+        FileOutputStream f = new FileOutputStream(file);
+        CSVWriter writer;
+        f = new FileOutputStream(file);
+    }
     /** Called when the user taps the Start Session button */
     public void endSession(View view) {
+        outputData();
         // Do something in response to button
         Intent intent = new Intent(this, EndSession.class);
 
