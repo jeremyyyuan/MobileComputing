@@ -41,7 +41,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     }
 
     // Initialize list of events for output
-    ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
+    public ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
     // Number of seconds displayed
     // on the stopwatch.
