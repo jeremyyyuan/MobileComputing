@@ -12,8 +12,8 @@
     <string name="pickups"># of Pickups:</string>
     <string name="distractions"># of Distractions:</string>
     <string name="notifications"># of Notifications:</string>
-    <string name="pickup_num">5</string>
-    <string name="distraction_num">2</string>
+    <string name="pickup_num">0</string>
+    <string name="distraction_num">0</string>
     <string name="notification_num">10</string>
     <string name="time">Time:</string>
     <string name="your_session">Your Study Session</string>

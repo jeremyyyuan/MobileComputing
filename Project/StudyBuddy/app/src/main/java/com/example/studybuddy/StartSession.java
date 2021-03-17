@@ -25,45 +25,48 @@ import java.util.Locale;
 public class StartSession extends AppCompatActivity implements SensorEventListener {
 
     enum Activity {
-        PICKUP,
-        STATIONARY,
-        DISTRACTION
-//        NOTIFICATION
+        DEVICE_MOVEMENT,
+        DEVICE_STATIONARY,
+        APP_FOREGROUND,
+        APP_BACKGROUND
+        // NOTIFICATION
     }
-    public class Event<Type, StartTime, EndTime> {
+    public static class Event<Type, Time> {
         public final Type t;
-        public final StartTime s;
-        public final EndTime e;
-        public Event(Type t, StartTime s, EndTime  e) {
+        public final Time s;
+        public Event(Type t, Time s) {
             this.t = t;
             this.s = s;
-            this.e = e;
         }
     }
 
     // Initialize list of events for output
-    ArrayList<Event> events = new ArrayList<>();
+    ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
     // Number of seconds displayed
     // on the stopwatch.
     private int seconds = 0;
 
     // Number of distractions displayed
-    // on the start screen
-    private int distractions = 0;
+    // on the start screen - indicates
+    // the amount of time the user picks switches apps
+    private int app_distractions = 0;
 
-    // Number of pickups displayed on the screet
+    // Indicates how many times the user picked up the phone
+    private int device_pickups = 0;
+
 
     // Is the stopwatch running?
-    private boolean running;
+    private boolean running = false;
+    // Is the phone in motion?
+    private boolean moving = false;
 
     public static final String EXTRA_MESSAGE = "00:00:00";
 
     // Sensors
     private SensorManager mSensorManager;
     private Sensor mSensorAccel;
-    private float previousAccelValue;
-    // private TextView mTextSensorAccel;
+
     /*
     public StartSession(SensorManager mSensorManager) {
         this.mSensorManager = mSensorManager;
@@ -82,10 +85,12 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
         running = true;
         runTimer();
+
+        /* Begin monitoring accelerometer sensors */
+        monitorDevicePickups();
+
         /* Begin monitoring phone distractions */
-        monitorDistractions();
-        /* Begin monitoring Sensors */
-        monitorSession();
+        monitorAppDistractions();
     }
 
     /** Called when the user taps the Start Session button */
@@ -100,9 +105,10 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
-    // Sets up sensor data collection
+    // Sets up accelerometer sensor data collection
+    // to determine device pickups
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void monitorSession() {
+    private void monitorDevicePickups() {
         if (mSensorAccel != null) {
             mSensorManager.registerListener(this, mSensorAccel,
                     SensorManager.SENSOR_DELAY_NORMAL);
@@ -110,19 +116,10 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         mSensorManager =
                 (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        // mTextSensorAccel = (TextView) findViewById(R.id.label_accel);
         mSensorAccel =
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        /*
-            public void onSensorChanged(SensorEvent event) {
-
-            }
-        */
-        // String sensor_error = getResources().getString(R.string.error_no_sensor);
 
         if (mSensorAccel == null) {
-            // mTextSensorAccel.setText(sensor_error);
-
             Log.w("SensorAccel", "no sensor");
         }
     }
@@ -154,18 +151,34 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (running) {
-            float currentValue = event.values[0];
+
             int sensorType = event.sensor.getType();
 
             if (sensorType == Sensor.TYPE_ACCELEROMETER) {
-           /* mTextSensorAccel.setText(getResources().getString(
-                    R.string.accelerometer_sensor_1_2f_2_2f_3_2f, currentValue));
-            */
-                final int sensorAccel = Log.w("SensorAccel", String.valueOf(currentValue));
-                if (previousAccelValue != currentValue) {
-                    Activity a = Activity.PICKUP;
-                    // Event e = new Event<enum a, int seconds, int seconds>();
-                    events.add(new Event(a, seconds, seconds));
+                float xAccel = event.values[0];
+                float yAccel = event.values[1];
+                float zAccel = event.values[2];
+
+                Log.w("SensorAccel", String.valueOf(xAccel));
+                Log.w("SensorAccel", String.valueOf(yAccel));
+                Log.w("SensorAccel", String.valueOf(zAccel));
+                Activity a;
+                if (moving) {
+                    if (xAccel == 0 && yAccel == 0 && zAccel == 0) {
+                        a = Activity.DEVICE_STATIONARY;
+                        events.add(new Event<>(a, seconds));
+                    }
+                    // Ignore if the movement is continuous
+                } else {
+                    a = Activity.DEVICE_MOVEMENT;
+                    events.add(new Event<>(a, seconds));
+                    device_pickups += 1;
+                    moving = true;
+                    // Update the text view.
+                    final TextView pickupView
+                            = findViewById(
+                            R.id.pickup_num);
+                    pickupView.setText(String.valueOf(device_pickups));
                 }
             }
         }
@@ -177,31 +190,43 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     }
 
     // Calculate how many times left the app
-    private void monitorDistractions() {
-
-        // Get the text view.
+    private void monitorAppDistractions() {
+        // Reset the text view.
         final TextView distractionView
                 = findViewById(
                 R.id.distraction_num);
-        distractions = 0;
-        distractionView.setText(String.valueOf(distractions));
+        app_distractions = 0;
+        distractionView.setText(String.valueOf(app_distractions));
+        Activity a = Activity.APP_FOREGROUND;
+        events.add(new Event<>(a, seconds));
 
     }
     @Override
     protected void onPause() {
         super.onPause();
+        // When app moves to background increase distraction count
         if (running) {
-            distractions += 1;
-            // Get the text view.
+            app_distractions += 1;
+            // Log activity
+            Log.w("DataCollection", "App moved to background");
+
+            Activity a = Activity.APP_BACKGROUND;
+            events.add(new Event<>(a, seconds));
+            // Update the text view.
             final TextView distractionView
                     = findViewById(
                     R.id.distraction_num);
-            distractionView.setText(String.valueOf(distractions));
+            distractionView.setText(String.valueOf(app_distractions));
         }
     }
 
     protected void onResume() {
         super.onResume();
+        // Log activity
+        Log.w("DataCollection", "App moved to foreground");
+
+        Activity a = Activity.APP_FOREGROUND;
+        events.add(new Event<>(a, seconds));
     }
 
     // Sets the NUmber of seconds on the timer.
