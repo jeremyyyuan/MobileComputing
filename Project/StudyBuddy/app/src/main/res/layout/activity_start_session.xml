@@ -140,4 +140,17 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/pickups"
         app:layout_constraintStart_toStartOf="parent" />
+    <!--
+    <TextView
+        android:id="@+id/label_accel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginLeft="28dp"
+        android:layout_marginBottom="28dp"
+        android:text="@string/accelerometer_sensor_1_2f_2_2f_3_2f"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/end_session"
+        app:layout_constraintStart_toStartOf="parent" />
+      -->
 </androidx.constraintlayout.widget.ConstraintLayout>
