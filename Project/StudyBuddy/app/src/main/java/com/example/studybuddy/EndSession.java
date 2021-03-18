@@ -21,6 +21,8 @@ public class EndSession extends AppCompatActivity {
         // Capture the layout's TextView and set the string as its text
         TextView textView = findViewById(R.id.time_view2);
         textView.setText(message);
+
+        updateStatistics();
     }
 
     /** Called when the user taps the Start Session button */
@@ -28,5 +30,18 @@ public class EndSession extends AppCompatActivity {
         // Do something in response to button
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+
+    public void updateStatistics() {
+        final TextView pickupView
+                = findViewById(
+                R.id.pickup_num2);
+        pickupView.setText(String.valueOf(StartSession.device_pickups));
+
+        final TextView distractionView
+                = findViewById(
+                R.id.distraction_num2);
+        // Set to app_distractions - 1 because clicking End Session actually increments it by one.
+        distractionView.setText(String.valueOf(StartSession.app_distractions - 1));
     }
 }

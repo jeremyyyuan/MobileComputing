@@ -50,10 +50,10 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     // Number of distractions displayed
     // on the start screen - indicates
     // the amount of time the user picks switches apps
-    private int app_distractions = 0;
+    public static int app_distractions = 0;
 
     // Indicates how many times the user picked up the phone
-    private int device_pickups = 0;
+    public static int device_pickups = 0;
 
 
     // Is the stopwatch running?
@@ -150,7 +150,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     @SuppressLint("StringFormatMatches")
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (running) {
+        while (running) {
 
             int sensorType = event.sensor.getType();
 
