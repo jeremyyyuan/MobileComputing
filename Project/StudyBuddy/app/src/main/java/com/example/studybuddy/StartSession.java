@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.chaquo.python.Python;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -86,11 +88,16 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         running = true;
         runTimer();
 
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(this))
+        }
+
         /* Begin monitoring accelerometer sensors */
         monitorDevicePickups();
 
         /* Begin monitoring phone distractions */
         monitorAppDistractions();
+
     }
 
     /** Called when the user taps the Start Session button */
