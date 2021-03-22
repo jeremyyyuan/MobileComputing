@@ -25,7 +25,7 @@ public class EndSession extends AppCompatActivity {
         updateStatistics();
     }
 
-    /** Called when the user taps the Start Session button */
+    /* Called when the user taps the Start Session button */
     public void backToMain(View view) {
         // Do something in response to button
         Intent intent = new Intent(this, MainActivity.class);

@@ -66,7 +66,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     // Sensors
     private SensorManager mSensorManager;
     private Sensor mSensorAccel;
-
+    private int collectionInterval = 50000000;
     /*
     public StartSession(SensorManager mSensorManager) {
         this.mSensorManager = mSensorManager;
@@ -109,10 +109,11 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     // to determine device pickups
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void monitorDevicePickups() {
-        if (mSensorAccel != null) {
-            mSensorManager.registerListener(this, mSensorAccel,
-                    SensorManager.SENSOR_DELAY_NORMAL);
-        }
+
+
+
+
+       // Log.w("SensorDebug", "sensor manager already initialized");
         mSensorManager =
                 (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -122,6 +123,11 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         if (mSensorAccel == null) {
             Log.w("SensorAccel", "no sensor");
         }
+        if(mSensorAccel != null) {
+            mSensorManager.registerListener(this, mSensorAccel, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.w("SensorDebug", "Initializing sensor manager");
+        }
+
     }
 
     // TODO: Might need to remove and implement in oncreate so sensor data is
@@ -140,17 +146,20 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                     SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
+     */
     @Override
     protected void onStop() {
         super.onStop();
         mSensorManager.unregisterListener(this);
+        Log.w("SensorDebug", "stopped sensor pickup");
     }
-     */
+
 
     @SuppressLint("StringFormatMatches")
     @Override
     public void onSensorChanged(SensorEvent event) {
-        while (running) {
+        Log.w("SensorDebug", "sensor event detected");
+        if (running) {
 
             int sensorType = event.sensor.getType();
 
@@ -164,9 +173,10 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 Log.w("SensorAccel", String.valueOf(zAccel));
                 Activity a;
                 if (moving) {
-                    if (xAccel == 0 && yAccel == 0 && zAccel == 0) {
+                    if (xAccel == 0 && yAccel == 0.81 && zAccel == 9.78) {
                         a = Activity.DEVICE_STATIONARY;
                         events.add(new Event<>(a, seconds));
+                        moving = false;
                     }
                     // Ignore if the movement is continuous
                 } else {
@@ -179,6 +189,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                             = findViewById(
                             R.id.pickup_num);
                     pickupView.setText(String.valueOf(device_pickups));
+                    Log.w("TextView", String.valueOf(device_pickups));
                 }
             }
         }
