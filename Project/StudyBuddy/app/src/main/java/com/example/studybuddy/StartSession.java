@@ -85,7 +85,6 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     // Indicates how many times the user picked up the phone
     public static int device_pickups = 0;
 
-
     // Is the stopwatch running?
     private boolean running = false;
     // Is the phone in motion?
@@ -140,8 +139,6 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void outputCSV() {
-        String output = runPythonScript();
-        Log.w("PythonTest", output);
         String filename = "session-data.csv";
         String filepath = "data-dir";
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -167,8 +164,14 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            String output = runPythonScript();
+            Log.w("PickupNum", output);
+            final TextView pickupView
+                    = findViewById(
+                    R.id.pickup_num);
 
-
+            pickupView.setText(output);
+            Log.w("TextView", output);
         }
     }
 
@@ -272,6 +275,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                             R.id.pickup_num);
                     pickupView.setText(String.valueOf(device_pickups));
                     Log.w("TextView", String.valueOf(device_pickups));
+
                 }
             }
         }

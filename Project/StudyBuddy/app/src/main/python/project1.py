@@ -10,7 +10,6 @@ import os
 
 from sklearn.metrics import confusion_matrix
 
-
 def extract_value_output_magnitude(file_data):
     mean = file_data.mean(0)
     sigma = np.std(file_data, axis =0)
@@ -129,11 +128,11 @@ def append_activity(list_act, activity):
     if(activity == 'walk'):
         list_act.append(5)
 
-def print_confusion_matrix(activities):
+def print_confusion_matrix(activities, clf):
     test_data = []
-    os.chdir(r"/Users/alanzhao/Desktop/Mobile Computing/Project 1/")
-    dir_path = os.getcwd()
-    directory = str(dir_path) + '/test_preprocessed/'
+    
+    dir_path = os.path.dirname(__file__)
+    proc_dir = os.path.join(dir_path, "test_preprocessed")
 
     i = 0
     y_true = []
@@ -145,7 +144,7 @@ def print_confusion_matrix(activities):
         for activity in activities:
             append_activity(y_true, activity)
             filename = activity + str(i) + '.txt'
-            join_filename = directory + str(filename)
+            join_filename = os.path.join(proc_dir, str(filename))
             with open(join_filename, 'r') as f:
                 file_data = np.genfromtxt(join_filename,delimiter=';',skip_header=1)
                 ana_file_data = extract_value_output_magnitude(file_data)
@@ -211,16 +210,21 @@ def get_distractions(dict):
 def classifyData(path2):
     
     df = pd.DataFrame(columns = ['X','Y','Z'])
-    print("cwd: {}".format(os.getcwd()))
-    os.chdir(r"/Users/yaelsulkin/cs23400/MobileComputing/Project/StudyBuddy/app/src/main/java/com/example/studybuddy/train")
+    
+    """
+    for x in os.listdir(r"./"):
+        print("file: {}".format(x))
+    os.chdir(r"/train/")
+    """
     activities = ['call', 'no_motion', 'pickup', 'table_tap', 'walk']
     model_data = {activity: [] for activity in activities}
     Y_Train = []
-    
+    dir = os.path.join(os.path.dirname(__file__), "train")
     print('Training model with training data...')
     for activity in activities:
-        for filename in os.listdir(activity):
-            path = activity + '/' + filename
+        act_dir = dir + '/' + activity
+        for filename in os.listdir(act_dir):
+            path = act_dir + '/' + filename
             file_data = np.genfromtxt(path,delimiter=';',skip_header=1)
             file_data = extract_value_output_magnitude(file_data)
             model_data[activity].append(file_data)
@@ -277,11 +281,11 @@ def classifyData(path2):
     
     print('The probable activity in ' + str(file_name) + ' is ' + activity_name + '.')
     '''
-    print_confusion_matrix(activities)
+    print_confusion_matrix(activities, clf)
     print(os.getcwd())
     
     
-   # path2 = './samples/pick_up_put_down/pupd2ice_30hz.txt'
+    # path2 = './samples/pick_up_put_down/pupd2ice_30hz.txt'
     data = []
     with open(path2) as rf:
         lines = rf.readlines()
@@ -303,5 +307,4 @@ def classifyData(path2):
     #   2. tap occurs immediately after notification
     distraction_number = get_distractions(activity_dict)
     print("distraction total: " + str(distraction_number))
-    return "distraction total: " + str(distraction_number)
-    
+    return str(distraction_number)
