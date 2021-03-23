@@ -12,15 +12,24 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import com.opencsv.CSVWriter;
+import com.opencsv.CSVWriterBuilder;
 
 public class StartSession extends AppCompatActivity implements SensorEventListener {
 
@@ -39,7 +48,22 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
             this.s = s;
         }
     }
-
+    /*
+    public static class AccelEvent<Time, XValue, YValue, ZValue> {
+        public final Time t;
+        public final XValue x;
+        public final YValue y;
+        public final ZValue z;
+        public AccelEvent(Time t, XValue x, YValue y, ZValue z) {
+            this.t = t;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+    public ArrayList<AccelEvent<Integer, Float, Float, Float>> accelEvents = new ArrayList<>();
+    */
+    private ArrayList<String> outputData = new ArrayList<>();
     // Initialize list of events for output
     ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
@@ -94,7 +118,9 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     }
 
     /** Called when the user taps the Start Session button */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void endSession(View view) {
+        outputCSV();
         // Do something in response to button
         Intent intent = new Intent(this, EndSession.class);
 
@@ -105,6 +131,35 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void outputCSV() {
+        String filename = "session-data.csv";
+        String filepath = "data-dir";
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            File externalFile = new File(getExternalFilesDir(filepath), filename);
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(externalFile);
+                CSVWriter writer = new CSVWriter(
+                        new OutputStreamWriter(fos, StandardCharsets.UTF_8),
+                        ';',
+                        CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                        CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                        CSVWriter.DEFAULT_LINE_END
+                );
+                String[] record = "4,David,Miller,Australia,30".split(",");
+                //Write the record to file
+                writer.writeNext(record);
+                writer.close();
+                Log.w("Output", "output csv succcesful");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
     // Sets up accelerometer sensor data collection
     // to determine device pickups
     @RequiresApi(api = Build.VERSION_CODES.M)
