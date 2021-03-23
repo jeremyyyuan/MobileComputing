@@ -17,10 +17,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.opencsv.CSVWriter;
+
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.StringJoiner;
 
 public class StartSession extends AppCompatActivity implements SensorEventListener {
 
@@ -39,7 +46,22 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
             this.s = s;
         }
     }
-
+    /*
+    public static class AccelEvent<Time, XValue, YValue, ZValue> {
+        public final Time t;
+        public final XValue x;
+        public final YValue y;
+        public final ZValue z;
+        public AccelEvent(Time t, XValue x, YValue y, ZValue z) {
+            this.t = t;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+    public ArrayList<AccelEvent<Integer, Float, Float, Float>> accelEvents = new ArrayList<>();
+    */
+    private ArrayList<String> outputData = new ArrayList<>();
     // Initialize list of events for output
     ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
@@ -95,6 +117,9 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
     /** Called when the user taps the Start Session button */
     public void endSession(View view) {
+
+        // Print values
+        outputToCSV();
         // Do something in response to button
         Intent intent = new Intent(this, EndSession.class);
 
@@ -103,6 +128,24 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         intent.putExtra(EXTRA_MESSAGE, message);
 
         startActivity(intent);
+    }
+
+    private void outputToCSV() {
+
+        String filename = "src/main/data/session-data.csv";
+        try {
+            FileOutputStream fos = new FileOutputStream(filename);
+            OutputStreamWriter osr= new OutputStreamWriter(fos);
+            CSVWriter w = new CSVWriter(new FileWriter(String.valueOf(osr)));
+            String [] record = "4,David,Miller,Australia,30".split(",");
+            //Write the record to file
+            w.writeNext(record);
+
+            //close the writer
+            w.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Sets up accelerometer sensor data collection
@@ -155,12 +198,12 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("StringFormatMatches")
     @Override
     public void onSensorChanged(SensorEvent event) {
         Log.w("SensorDebug", "sensor event detected");
         if (running) {
-
             int sensorType = event.sensor.getType();
 
             if (sensorType == Sensor.TYPE_ACCELEROMETER) {
@@ -168,9 +211,18 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 float yAccel = event.values[1];
                 float zAccel = event.values[2];
 
+                StringJoiner joiner = new StringJoiner(",");
+                joiner.add(String.valueOf(seconds)).add(String.valueOf(xAccel))
+                    .add(String.valueOf(yAccel))
+                    .add(String.valueOf(zAccel));
+                String line = joiner.toString();
+                outputData.add(line);
+                // accelEvents.add(new AccelEvent<>(seconds, xAccel, yAccel, zAccel));
+
                 Log.w("SensorAccel", String.valueOf(xAccel));
                 Log.w("SensorAccel", String.valueOf(yAccel));
                 Log.w("SensorAccel", String.valueOf(zAccel));
+
                 Activity a;
                 if (moving) {
                     if (xAccel == 0 && yAccel == 0.81 && zAccel == 9.78) {
