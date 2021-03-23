@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import com.opencsv.CSVWriter;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -88,7 +90,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     // Sensors
     private SensorManager mSensorManager;
     private Sensor mSensorAccel;
-    private int collectionInterval = 50000000;
+    // private int collectionInterval = 50000000;
     /*
     public StartSession(SensorManager mSensorManager) {
         this.mSensorManager = mSensorManager;
@@ -119,7 +121,11 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     public void endSession(View view) {
 
         // Print values
-        outputToCSV();
+        try {
+            outputToCSV();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // Do something in response to button
         Intent intent = new Intent(this, EndSession.class);
 
@@ -130,22 +136,35 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
-    private void outputToCSV() {
+    private void outputToCSV() throws IOException {
 
-        String filename = "src/main/data/session-data.csv";
+        String filename = "session-data.csv";
+        String filepath = "data-dir";
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            Log.w("CSV", "Storage is mounted");
+        } else if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED_READ_ONLY)){
+            Log.w("CSV", "Storage is read only");
+        }
+        FileOutputStream fos = null;
         try {
-            FileOutputStream fos = new FileOutputStream(filename);
-            OutputStreamWriter osr= new OutputStreamWriter(fos);
-            CSVWriter w = new CSVWriter(new FileWriter(String.valueOf(osr)));
-            String [] record = "4,David,Miller,Australia,30".split(",");
-            //Write the record to file
-            w.writeNext(record);
+            fos = openFileOutput(filename, MODE_PRIVATE);
 
-            //close the writer
-            w.close();
-        } catch (IOException e) {
+            try (CSVWriter w = new CSVWriter(new FileWriter(String.valueOf(fos)))) {
+                String[] record = "4,David,Miller,Australia,30".split(",");
+                //Write the record to file
+                w.writeNext(record);
+
+                //close the writer
+                fos.close();
+            }
+
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+
+
+
     }
 
     // Sets up accelerometer sensor data collection
