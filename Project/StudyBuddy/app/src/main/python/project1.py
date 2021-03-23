@@ -208,10 +208,11 @@ def get_distractions(dict):
     else:
         return 0
 
-if __name__ == '__main__':
+def classifyData(path2):
     
     df = pd.DataFrame(columns = ['X','Y','Z'])
-    os.chdir(r"/Users/alanzhao/Desktop/Mobile Computing/Project 1/train/")
+    print("cwd: {}".format(os.getcwd()))
+    os.chdir(r"/Users/yaelsulkin/cs23400/MobileComputing/Project/StudyBuddy/app/src/main/java/com/example/studybuddy/train")
     activities = ['call', 'no_motion', 'pickup', 'table_tap', 'walk']
     model_data = {activity: [] for activity in activities}
     Y_Train = []
@@ -280,7 +281,7 @@ if __name__ == '__main__':
     print(os.getcwd())
     
     
-    path2 = './samples/pick_up_put_down/pupd2ice_30hz.txt'
+   # path2 = './samples/pick_up_put_down/pupd2ice_30hz.txt'
     data = []
     with open(path2) as rf:
         lines = rf.readlines()
@@ -302,4 +303,5 @@ if __name__ == '__main__':
     #   2. tap occurs immediately after notification
     distraction_number = get_distractions(activity_dict)
     print("distraction total: " + str(distraction_number))
+    return "distraction total: " + str(distraction_number)
     

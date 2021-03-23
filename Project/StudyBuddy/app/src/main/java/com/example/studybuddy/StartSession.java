@@ -27,9 +27,13 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.opencsv.CSVWriter;
-import com.opencsv.CSVWriterBuilder;
 
 public class StartSession extends AppCompatActivity implements SensorEventListener {
 
@@ -63,7 +67,9 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     }
     public ArrayList<AccelEvent<Integer, Float, Float, Float>> accelEvents = new ArrayList<>();
     */
-    private ArrayList<String> outputData = new ArrayList<>();
+    private List<String[]> outputData = new ArrayList<>();
+    private String dataInputPath;
+
     // Initialize list of events for output
     ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
@@ -100,6 +106,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initPython();
         setContentView(R.layout.activity_start_session);
 
         String currentDate = new SimpleDateFormat("MMM, d yyyy", Locale.getDefault()).format(new Date());
@@ -133,10 +140,13 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void outputCSV() {
+        String output = runPythonScript();
+        Log.w("PythonTest", output);
         String filename = "session-data.csv";
         String filepath = "data-dir";
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File externalFile = new File(getExternalFilesDir(filepath), filename);
+            dataInputPath = externalFile.getPath();
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(externalFile);
@@ -147,9 +157,9 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                         CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                         CSVWriter.DEFAULT_LINE_END
                 );
-                String[] record = "4,David,Miller,Australia,30".split(",");
+
                 //Write the record to file
-                writer.writeNext(record);
+                writer.writeAll(outputData);
                 writer.close();
                 Log.w("Output", "output csv succcesful");
             } catch (FileNotFoundException e) {
@@ -158,8 +168,21 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 e.printStackTrace();
             }
 
+
         }
     }
+
+    private void initPython() {
+        if(!Python.isStarted()) {
+            Python.start(new AndroidPlatform(this));
+        }
+    }
+    private String runPythonScript() {
+        Python python = Python.getInstance();
+        PyObject pythonFile = python.getModule("project1");
+        return pythonFile.callAttr("classifyData", dataInputPath).toString();
+    }
+
     // Sets up accelerometer sensor data collection
     // to determine device pickups
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -226,6 +249,10 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 Log.w("SensorAccel", String.valueOf(xAccel));
                 Log.w("SensorAccel", String.valueOf(yAccel));
                 Log.w("SensorAccel", String.valueOf(zAccel));
+
+                String[] row = new String[]{String.valueOf(seconds), String.valueOf(xAccel),
+                        String.valueOf(yAccel), String.valueOf(zAccel)};
+                outputData.add(row);
                 Activity a;
                 if (moving) {
                     if (xAccel == 0 && yAccel == 0.81 && zAccel == 9.78) {
