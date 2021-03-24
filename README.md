@@ -9,3 +9,5 @@ Required modules (these may need to be imported manually in earlier versions):
 OpenCSV,
 Chaquopy
 
+SDK available in /Project/StudyBuddy/app/build/outputs/apk/debug/
+
