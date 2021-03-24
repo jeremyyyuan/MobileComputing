@@ -5,6 +5,7 @@ CMSC 23400
 
 Run package in Android Studios.
 Required modules (these may need to be imported manually in earlier versions):
-  OpenCSV
-  Chaquopy
+
+OpenCSV,
+Chaquopy
 
