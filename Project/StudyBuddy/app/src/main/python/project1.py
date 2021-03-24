@@ -138,7 +138,7 @@ def print_confusion_matrix(activities, clf):
     y_true = []
     global y_pred
     y_pred = []
-    while(i<2):
+    while(i<6):
         test_data = []
         cur_predict_num = 0
         for activity in activities:

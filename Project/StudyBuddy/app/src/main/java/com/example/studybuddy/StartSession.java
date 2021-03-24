@@ -69,7 +69,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     */
     private List<String[]> outputData = new ArrayList<>();
     private String dataInputPath;
-    private int prev = 0;
+    private int index = 0;
     // Initialize list of events for output
     ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
@@ -245,7 +245,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
             int sensorType = event.sensor.getType();
 
-            if (sensorType == Sensor.TYPE_ACCELEROMETER && seconds != prev) {
+            if (sensorType == Sensor.TYPE_ACCELEROMETER) {
                 float xAccel = event.values[0];
                 float yAccel = event.values[1];
                 float zAccel = event.values[2];
@@ -254,10 +254,11 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 Log.w("SensorAccel", String.valueOf(yAccel));
                 Log.w("SensorAccel", String.valueOf(zAccel));
 
-                String[] row = new String[]{String.valueOf(seconds), String.valueOf(xAccel),
+                index += 1;
+                String[] row = new String[]{String.valueOf(index), String.valueOf(xAccel),
                         String.valueOf(yAccel), String.valueOf(zAccel)};
                 outputData.add(row);
-                prev = seconds;
+
                 Activity a;
                 if (moving) {
                     if (xAccel == 0 && yAccel == 0.81 && zAccel == 9.78) {
