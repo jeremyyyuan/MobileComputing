@@ -169,7 +169,35 @@ def print_confusion_matrix(activities, clf):
     print(mtx)
 
 def get_activities(data):
-    activity_dict = {"phone_pickups":1, "leave_app":0, "tap_number":2, "swipe_number":2, "notification_number": 0}
+    activity_counter = 0
+    activity_dict = {"phone_pickups":0, "leave_app":0, "tap_number":2, "swipe_number":2, "notification_number": 0}
+    '''
+    data is a list of tuples
+    file_data is just a file
+    '''
+    test_data = []
+    data_summary = extract_value_output_magnitude(file_data)
+    print(data_summary)
+    test_data.append(data_summary)
+    activity_number = clf.predict(test_data)
+
+    if(activity_number[activity_counter] == 1):
+        activity_name = 'call'
+    if(activity_number[activity_counter] == 2):
+        activity_name = 'no_motion'
+    if(activity_number[activity_counter] == 3):
+        activity_name = 'pickup'
+    if(activity_number[activity_counter] == 4):
+        activity_name = 'table_tap'
+    if(activity_number[activity_counter] == 5):
+        activity_name = 'walk'
+
+    if activity_name == 'call' or activity_name == 'pickup':
+        activity_dict["phone_pickups"] += 1
+    elif activity_name == 'table_tap':
+        activity_dict["table_tap"] += 1
+    print(activity_name)
+    activity_counter += 1
     #activity_dict = {"phone_pickups":2, "leave_app":0, "tap_number":0, "swipe_number":0, "notification_number": 0}
     #peak_freq = get_peak_freq(data)
     #print(peak_freq)
