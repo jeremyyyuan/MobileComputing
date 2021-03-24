@@ -16,8 +16,8 @@ def extract_value_output_magnitude(file_data):
     #print(mean.shape)
     #need tuple of mean and sigma
     #print(sigma[1])
-    sigma_magnitude = np.sqrt(sigma[1]**2 +sigma[2]**2 +sigma[3]**2)
-    mean_magnitude = np.sqrt(mean[1]**2 +mean[2]**2 +mean[3]**2)
+    #sigma_magnitude = np.sqrt(sigma[1]**2 +sigma[2]**2 +sigma[3]**2)
+    #mean_magnitude = np.sqrt(mean[1]**2 +mean[2]**2 +mean[3]**2)
     
     x_mean = mean[1]
     y_mean = mean[2]
@@ -254,7 +254,7 @@ def classifyData(path2):
         for filename in os.listdir(act_dir):
             path = act_dir + '/' + filename
             file_data = np.genfromtxt(path,delimiter=';',skip_header=1)
-            file_data_temp = file_data
+
             file_data = extract_value_output_magnitude(file_data)
             model_data[activity].append(file_data)
             # Create the proper feature array Y_Train
@@ -316,6 +316,7 @@ def classifyData(path2):
     
     # path2 = './samples/pick_up_put_down/pupd2ice_30hz.txt'
     data = []
+    file_data_temp = np.genfromtxt(path2,delimiter=',')
     with open(path2) as rf:
         lines = rf.readlines()
         for line in lines:
@@ -323,7 +324,7 @@ def classifyData(path2):
             parts = re.split(r';' , line)
             data.append((parts[0], parts[1], parts[2], parts[3]))
             print(parts)
-    
+    print(data)
     
     # 1 determine number of times user picks up the phone
     # 2 determine how many times user tap the phone
