@@ -69,7 +69,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
     */
     private List<String[]> outputData = new ArrayList<>();
     private String dataInputPath;
-
+    private int prev = 0;
     // Initialize list of events for output
     ArrayList<Event<Activity, Integer>> events = new ArrayList<>();
 
@@ -144,6 +144,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File externalFile = new File(getExternalFilesDir(filepath), filename);
             dataInputPath = externalFile.getPath();
+            Log.w("OutputPath", dataInputPath.toString());
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(externalFile);
@@ -244,7 +245,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
 
             int sensorType = event.sensor.getType();
 
-            if (sensorType == Sensor.TYPE_ACCELEROMETER) {
+            if (sensorType == Sensor.TYPE_ACCELEROMETER && seconds != prev) {
                 float xAccel = event.values[0];
                 float yAccel = event.values[1];
                 float zAccel = event.values[2];
@@ -256,6 +257,7 @@ public class StartSession extends AppCompatActivity implements SensorEventListen
                 String[] row = new String[]{String.valueOf(seconds), String.valueOf(xAccel),
                         String.valueOf(yAccel), String.valueOf(zAccel)};
                 outputData.add(row);
+                prev = seconds;
                 Activity a;
                 if (moving) {
                     if (xAccel == 0 && yAccel == 0.81 && zAccel == 9.78) {

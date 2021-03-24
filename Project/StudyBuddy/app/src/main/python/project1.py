@@ -293,6 +293,7 @@ def classifyData(path2):
             line = line.strip()
             parts = re.split(r';' , line)
             data.append((parts[0], parts[1], parts[2], parts[3]))
+            print(parts)
     
     
     # 1 determine number of times user picks up the phone
