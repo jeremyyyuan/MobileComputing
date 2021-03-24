@@ -168,7 +168,7 @@ def print_confusion_matrix(activities, clf):
     mtx = confusion_matrix(y_true, y_pred, normalize='true')
     print(mtx)
 
-def get_activities(data):
+def get_activities(data, file_data, clf):
     activity_counter = 0
     activity_dict = {"phone_pickups":0, "leave_app":0, "tap_number":2, "swipe_number":2, "notification_number": 0}
     '''
@@ -254,6 +254,7 @@ def classifyData(path2):
         for filename in os.listdir(act_dir):
             path = act_dir + '/' + filename
             file_data = np.genfromtxt(path,delimiter=';',skip_header=1)
+            file_data_temp = file_data
             file_data = extract_value_output_magnitude(file_data)
             model_data[activity].append(file_data)
             # Create the proper feature array Y_Train
@@ -329,7 +330,7 @@ def classifyData(path2):
     # 3 determine how many times user scrolls the phone
     # 4 determine how many times user swipes the phone
     # data is the filename and what it returns is a dictionary
-    activity_dict = get_activities(data)
+    activity_dict = get_activities(data, file_data_temp, clf)
 
     #How do I define distraction:
     #   1. More than two taps on the phone
